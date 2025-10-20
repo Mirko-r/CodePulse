@@ -18,14 +18,23 @@ class HomePage extends ConsumerStatefulWidget {
 
 class _HomePageState extends ConsumerState<HomePage> {
   double leftWidthFraction = 0.4;
+  final GlobalKey _topBarKey = GlobalKey();
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      final RenderBox renderBox =
+          _topBarKey.currentContext!.findRenderObject() as RenderBox;
+      final barSize = renderBox.size;
       ref
           .read(topBarStateProvider.notifier)
-          .updateOffset(Offset(context.width * 0.35, 30));
+          .updateOffset(
+            Offset(
+              (context.width * leftWidthFraction) - (barSize.width / 2),
+              30,
+            ),
+          );
     });
   }
 
@@ -76,13 +85,24 @@ class _HomePageState extends ConsumerState<HomePage> {
             top: ref.watch(topBarStateProvider).offset.dy,
             child: GestureDetector(
               onPanUpdate: (details) {
+                final RenderBox renderBox =
+                    _topBarKey.currentContext!.findRenderObject() as RenderBox;
+                final barSize = renderBox.size;
+
+                double newDx =
+                    (ref.watch(topBarStateProvider).offset.dx +
+                            details.delta.dx)
+                        .clamp(0.0, context.width - barSize.width);
+                double newDy =
+                    (ref.watch(topBarStateProvider).offset.dy +
+                            details.delta.dy)
+                        .clamp(0.0, context.height - barSize.height);
+
                 ref
                     .read(topBarStateProvider.notifier)
-                    .updateOffset(
-                      ref.watch(topBarStateProvider).offset + details.delta,
-                    );
+                    .updateOffset(Offset(newDx, newDy));
               },
-              child: TopBar(),
+              child: TopBar(key: _topBarKey),
             ),
           ),
           if (ref.watch(topBarStateProvider).playerState == PlayerState.paused)
