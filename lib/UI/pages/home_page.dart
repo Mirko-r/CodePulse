@@ -1,23 +1,34 @@
 import 'package:code_pulse/helpers/context.dart';
+import 'package:code_pulse/providers/top_bar/top_bar_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../model/top_bar_model.dart';
+import '../widgets/blinking_outlined.dart';
 import '../widgets/editor_area.dart';
 import '../widgets/top_bar.dart';
 import '../widgets/visualizer_area.dart';
 
-class HomePage extends StatefulWidget {
+class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  ConsumerState<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends ConsumerState<HomePage> {
   double leftWidthFraction = 0.4;
 
-  Offset topBarOffset = const Offset(50, 30);
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref
+          .read(topBarStateProvider.notifier)
+          .updateOffset(Offset(context.width * 0.35, 30));
+    });
+  }
 
-  String selectedLanguage = 'Dart';
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -61,25 +72,21 @@ class _HomePageState extends State<HomePage> {
             },
           ),
           Positioned(
-            left: topBarOffset.dx,
-            top: topBarOffset.dy,
+            left: ref.watch(topBarStateProvider).offset.dx,
+            top: ref.watch(topBarStateProvider).offset.dy,
             child: GestureDetector(
               onPanUpdate: (details) {
-                setState(() {
-                  topBarOffset += details.delta;
-                });
+                ref
+                    .read(topBarStateProvider.notifier)
+                    .updateOffset(
+                      ref.watch(topBarStateProvider).offset + details.delta,
+                    );
               },
-              child: TopBar(
-                selectedLanguage: selectedLanguage,
-                onLanguageChanged: (lang) =>
-                    setState(() => selectedLanguage = lang),
-                onPlay: () {},
-                onStop: () {},
-                onNext: () {},
-                onBack: () {},
-              ),
+              child: TopBar(),
             ),
           ),
+          if (ref.watch(topBarStateProvider).playerState == PlayerState.paused)
+            Positioned.fill(child: IgnorePointer(child: BlinkingOutline())),
         ],
       ),
     );

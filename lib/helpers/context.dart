@@ -15,4 +15,5 @@ extension BuildContextExtensions on BuildContext {
       theme.colorScheme.surfaceContainerHighest;
   Color get onSurface => theme.colorScheme.onSurface;
   Color get primary => theme.colorScheme.primary;
+  Color get error => theme.colorScheme.error;
 }
