@@ -29,12 +29,7 @@ class _HomePageState extends ConsumerState<HomePage> {
       final barSize = renderBox.size;
       ref
           .read(topBarStateProvider.notifier)
-          .updateOffset(
-            Offset(
-              (context.width * leftWidthFraction) - (barSize.width / 2),
-              30,
-            ),
-          );
+          .updateOffset(Offset(context.width - (barSize.width + 20), 20));
     });
   }
 
@@ -48,35 +43,40 @@ class _HomePageState extends ConsumerState<HomePage> {
             builder: (context, constraints) {
               final width = constraints.maxWidth;
 
-              return Row(
-                children: [
-                  SizedBox(
-                    width: width * leftWidthFraction,
-                    child: const VisualizerArea(),
-                  ),
-                  MouseRegion(
-                    cursor: SystemMouseCursors.resizeLeftRight,
-                    child: GestureDetector(
-                      behavior: HitTestBehavior.translucent,
-                      onHorizontalDragUpdate: (details) {
-                        setState(() {
-                          leftWidthFraction += details.delta.dx / width;
-                          if (leftWidthFraction < 0.2) leftWidthFraction = 0.2;
-                          if (leftWidthFraction > 0.8) leftWidthFraction = 0.8;
-                        });
-                      },
-                      child: Container(
-                        width: 6,
-                        height: context.height * 0.1,
-                        decoration: BoxDecoration(
-                          color: context.primary,
-                          borderRadius: BorderRadius.circular(16),
+              return Padding(
+                padding: const EdgeInsets.all(18.0),
+                child: Row(
+                  children: [
+                    SizedBox(
+                      width: width * leftWidthFraction,
+                      child: const VisualizerArea(),
+                    ),
+                    MouseRegion(
+                      cursor: SystemMouseCursors.resizeLeftRight,
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.translucent,
+                        onHorizontalDragUpdate: (details) {
+                          setState(() {
+                            leftWidthFraction += details.delta.dx / width;
+                            if (leftWidthFraction < 0.2)
+                              leftWidthFraction = 0.2;
+                            if (leftWidthFraction > 0.8)
+                              leftWidthFraction = 0.8;
+                          });
+                        },
+                        child: Container(
+                          width: 6,
+                          height: context.height * 0.1,
+                          decoration: BoxDecoration(
+                            color: context.primary,
+                            borderRadius: BorderRadius.circular(16),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  Expanded(child: const EditorArea()),
-                ],
+                    Expanded(child: const EditorArea()),
+                  ],
+                ),
               );
             },
           ),

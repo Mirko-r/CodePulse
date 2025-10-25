@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'top_bar_provider.dart';
+part of 'selected_language_provider.dart';
 
 // **************************************************************************
 // RiverpodGenerator
@@ -9,52 +9,52 @@ part of 'top_bar_provider.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 
-@ProviderFor(TopBarState)
-const topBarStateProvider = TopBarStateProvider._();
+@ProviderFor(SelectedLanguage)
+const selectedLanguageProvider = SelectedLanguageProvider._();
 
-final class TopBarStateProvider
-    extends $NotifierProvider<TopBarState, TopBarModel> {
-  const TopBarStateProvider._()
+final class SelectedLanguageProvider
+    extends $NotifierProvider<SelectedLanguage, String> {
+  const SelectedLanguageProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
-        name: r'topBarStateProvider',
+        name: r'selectedLanguageProvider',
         isAutoDispose: true,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
 
   @override
-  String debugGetCreateSourceHash() => _$topBarStateHash();
+  String debugGetCreateSourceHash() => _$selectedLanguageHash();
 
   @$internal
   @override
-  TopBarState create() => TopBarState();
+  SelectedLanguage create() => SelectedLanguage();
 
   /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(TopBarModel value) {
+  Override overrideWithValue(String value) {
     return $ProviderOverride(
       origin: this,
-      providerOverride: $SyncValueProvider<TopBarModel>(value),
+      providerOverride: $SyncValueProvider<String>(value),
     );
   }
 }
 
-String _$topBarStateHash() => r'b541195adf28b6eb7ec1ded6217ffc21c5f00b69';
+String _$selectedLanguageHash() => r'fc34ed93449f061ec200a3147b309d2cdddaea49';
 
-abstract class _$TopBarState extends $Notifier<TopBarModel> {
-  TopBarModel build();
+abstract class _$SelectedLanguage extends $Notifier<String> {
+  String build();
   @$mustCallSuper
   @override
   void runBuild() {
     final created = build();
-    final ref = this.ref as $Ref<TopBarModel, TopBarModel>;
+    final ref = this.ref as $Ref<String, String>;
     final element =
         ref.element
             as $ClassProviderElement<
-              AnyNotifier<TopBarModel, TopBarModel>,
-              TopBarModel,
+              AnyNotifier<String, String>,
+              String,
               Object?,
               Object?
             >;

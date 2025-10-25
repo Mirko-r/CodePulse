@@ -11,17 +11,12 @@ class TopBarState extends _$TopBarState {
   TopBarModel build() {
     return const TopBarModel(
       offset: Offset(50, 10),
-      selectedLanguage: 'Dart',
       playerState: PlayerState.stopped,
     );
   }
 
   void updateOffset(Offset newOffset) {
     state = state.copyWith(offset: newOffset);
-  }
-
-  void updateLanguage(String newLanguage) {
-    state = state.copyWith(selectedLanguage: newLanguage);
   }
 
   void play() {

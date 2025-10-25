@@ -1,4 +1,5 @@
 import 'package:code_pulse/helpers/context.dart';
+import 'package:code_pulse/providers/selected_language/selected_language_provider.dart';
 import 'package:code_pulse/providers/top_bar/top_bar_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -74,17 +75,21 @@ class TopBar extends ConsumerWidget {
             const SizedBox(width: 16),
             // DROPDOWN LINGUAGGI
             DropdownButton<String>(
-              value: state.selectedLanguage,
+              value: ref.watch(selectedLanguageProvider),
               dropdownColor: context.surfaceContainerHighest,
               style: TextStyle(color: context.onSurface),
               underline: Container(),
-              items: <String>['Dart', 'Python', 'Java', 'C++']
+              items: supportedLanguages
                   .map(
                     (lang) => DropdownMenuItem(value: lang, child: Text(lang)),
                   )
                   .toList(),
               onChanged: (value) {
-                if (value != null) notifier.updateLanguage(value);
+                if (value != null) {
+                  ref
+                      .read(selectedLanguageProvider.notifier)
+                      .updateLanguage(value);
+                }
               },
             ),
             const SizedBox(width: 16),
