@@ -45,12 +45,7 @@ class TopBar extends ConsumerWidget {
         visibleButtons = [buttons['play']!];
         break;
       case PlayerState.running:
-        visibleButtons = [
-          buttons['pause']!,
-          buttons['stop']!,
-          buttons['back']!,
-          buttons['next']!,
-        ];
+        visibleButtons = [buttons['pause']!, buttons['stop']!];
         break;
       case PlayerState.paused:
         visibleButtons = [

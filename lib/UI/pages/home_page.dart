@@ -5,9 +5,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../model/top_bar_model.dart';
 import '../widgets/blinking_outlined.dart';
-import '../widgets/editor_area.dart';
+import '../widgets/code_editor/editor_area.dart';
 import '../widgets/top_bar.dart';
-import '../widgets/visualizer_area.dart';
+import '../widgets/code_visualizer/visualizer_area.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});

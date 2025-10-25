@@ -1,3 +1,4 @@
+import 'package:code_pulse/providers/code_execution/code_execution_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -21,21 +22,21 @@ class TopBarState extends _$TopBarState {
 
   void play() {
     state = state.copyWith(playerState: PlayerState.running);
+    // avvia anche il visualizer
+    ref.read(codeExecutionProvider.notifier).start();
   }
 
   void pause() {
     state = state.copyWith(playerState: PlayerState.paused);
+    ref.read(codeExecutionProvider.notifier).pause();
   }
 
   void stop() {
     state = state.copyWith(playerState: PlayerState.stopped);
+    ref.read(codeExecutionProvider.notifier).stop();
   }
 
-  void back() {
-    // TODO
-  }
+  void next() => ref.read(codeExecutionProvider.notifier).nextStep();
 
-  void next() {
-    // TODO
-  }
+  void back() => ref.read(codeExecutionProvider.notifier).previousStep();
 }

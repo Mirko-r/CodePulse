@@ -41,7 +41,7 @@ final class SelectedLanguageProvider
   }
 }
 
-String _$selectedLanguageHash() => r'fc34ed93449f061ec200a3147b309d2cdddaea49';
+String _$selectedLanguageHash() => r'fef4706a4443db988dc608fc753d1fe9bb6f980e';
 
 abstract class _$SelectedLanguage extends $Notifier<String> {
   String build();
