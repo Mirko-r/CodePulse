@@ -3,8 +3,6 @@ import 'package:code_pulse/providers/top_bar/top_bar_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../model/top_bar_model.dart';
-import '../widgets/blinking_outlined.dart';
 import '../widgets/code_editor/editor_area.dart';
 import '../widgets/top_bar.dart';
 import '../widgets/code_visualizer/visualizer_area.dart';
@@ -27,86 +25,110 @@ class _HomePageState extends ConsumerState<HomePage> {
       final RenderBox renderBox =
           _topBarKey.currentContext!.findRenderObject() as RenderBox;
       final barSize = renderBox.size;
+      // Position at bottom center
       ref
           .read(topBarStateProvider.notifier)
-          .updateOffset(Offset(context.width - (barSize.width + 20), 20));
+          .updateOffset(
+            Offset(
+              (context.width - barSize.width) / 2, // Center horizontally
+              context.height - barSize.height - 40, // Bottom with padding
+            ),
+          );
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: context.surface,
       body: Stack(
         children: [
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final width = constraints.maxWidth;
-
-              return Padding(
-                padding: const EdgeInsets.all(18.0),
-                child: Row(
-                  children: [
-                    SizedBox(
-                      width: width * leftWidthFraction,
-                      child: const VisualizerArea(),
-                    ),
-                    MouseRegion(
-                      cursor: SystemMouseCursors.resizeLeftRight,
-                      child: GestureDetector(
-                        behavior: HitTestBehavior.translucent,
-                        onHorizontalDragUpdate: (details) {
-                          setState(() {
-                            leftWidthFraction += details.delta.dx / width;
-                            if (leftWidthFraction < 0.2)
-                              leftWidthFraction = 0.2;
-                            if (leftWidthFraction > 0.8)
-                              leftWidthFraction = 0.8;
-                          });
-                        },
-                        child: Container(
-                          width: 6,
-                          height: context.height * 0.1,
-                          decoration: BoxDecoration(
-                            color: context.primary,
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                        ),
-                      ),
-                    ),
-                    Expanded(child: const EditorArea()),
-                  ],
-                ),
-              );
-            },
-          ),
-          Positioned(
-            left: ref.watch(topBarStateProvider).offset.dx,
-            top: ref.watch(topBarStateProvider).offset.dy,
-            child: GestureDetector(
-              onPanUpdate: (details) {
-                final RenderBox renderBox =
-                    _topBarKey.currentContext!.findRenderObject() as RenderBox;
-                final barSize = renderBox.size;
-
-                double newDx =
-                    (ref.watch(topBarStateProvider).offset.dx +
-                            details.delta.dx)
-                        .clamp(0.0, context.width - barSize.width);
-                double newDy =
-                    (ref.watch(topBarStateProvider).offset.dy +
-                            details.delta.dy)
-                        .clamp(0.0, context.height - barSize.height);
-
-                ref
-                    .read(topBarStateProvider.notifier)
-                    .updateOffset(Offset(newDx, newDy));
-              },
-              child: TopBar(key: _topBarKey),
+          // Background Gradient
+          Container(
+            decoration: const BoxDecoration(
+              gradient: RadialGradient(
+                center: Alignment.topLeft,
+                radius: 1.5,
+                colors: [
+                  Color(0xFF1E293B), // Slate 800
+                  Color(0xFF0F172A), // Slate 900
+                ],
+              ),
             ),
           ),
-          if (ref.watch(topBarStateProvider).playerState == PlayerState.paused)
-            Positioned.fill(child: IgnorePointer(child: BlinkingOutline())),
+          // Content
+          Stack(
+            children: [
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final width = constraints.maxWidth;
+
+                  return Padding(
+                    padding: const EdgeInsets.all(18.0),
+                    child: Row(
+                      children: [
+                        SizedBox(
+                          width: width * leftWidthFraction,
+                          child: const VisualizerArea(),
+                        ),
+                        MouseRegion(
+                          cursor: SystemMouseCursors.resizeLeftRight,
+                          child: GestureDetector(
+                            behavior: HitTestBehavior.translucent,
+                            onHorizontalDragUpdate: (details) {
+                              setState(() {
+                                leftWidthFraction += details.delta.dx / width;
+                                if (leftWidthFraction < 0.2) {
+                                  leftWidthFraction = 0.2;
+                                }
+                                if (leftWidthFraction > 0.8) {
+                                  leftWidthFraction = 0.8;
+                                }
+                              });
+                            },
+                            child: Container(
+                              width: 6,
+                              height: context.height * 0.1,
+                              decoration: BoxDecoration(
+                                color: context.primary,
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Expanded(child: const EditorArea()),
+                      ],
+                    ),
+                  );
+                },
+              ),
+              Positioned(
+                left: ref.watch(topBarStateProvider).offset.dx,
+                top: ref.watch(topBarStateProvider).offset.dy,
+                child: GestureDetector(
+                  onPanUpdate: (details) {
+                    final RenderBox renderBox =
+                        _topBarKey.currentContext!.findRenderObject()
+                            as RenderBox;
+                    final barSize = renderBox.size;
+
+                    double newDx =
+                        (ref.watch(topBarStateProvider).offset.dx +
+                                details.delta.dx)
+                            .clamp(0.0, context.width - barSize.width);
+                    double newDy =
+                        (ref.watch(topBarStateProvider).offset.dy +
+                                details.delta.dy)
+                            .clamp(0.0, context.height - barSize.height);
+
+                    ref
+                        .read(topBarStateProvider.notifier)
+                        .updateOffset(Offset(newDx, newDy));
+                  },
+                  child: TopBar(key: _topBarKey),
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );

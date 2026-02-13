@@ -22,28 +22,34 @@ class LineHighlightOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (currentLine < 0 || currentLine >= totalLines) {
+      return const SizedBox.shrink();
+    }
+
     final tp = TextPainter(
       text: TextSpan(text: ' ', style: textStyle),
       textDirection: TextDirection.ltr,
     )..layout();
 
-    final lineHeight = tp.height + verticalPadding;
+    final lineHeight = tp.height;
+    final top = currentLine * lineHeight + verticalOffset;
 
-    return IgnorePointer(
-      ignoring: true,
-      child: Stack(
-        children: List.generate(totalLines, (index) {
-          final top = index * lineHeight + verticalOffset;
-          return Positioned(
-            top: top,
-            left: horizontalPadding,
-            right: horizontalPadding,
-            height: lineHeight,
-            child: Container(
-              color: index == currentLine ? highlightColor : Colors.transparent,
+    return Positioned(
+      top: top,
+      left: horizontalPadding,
+      right: horizontalPadding,
+      height: lineHeight,
+      child: IgnorePointer(
+        ignoring: true,
+        child: Container(
+          decoration: BoxDecoration(
+            color: highlightColor,
+            border: Border.all(
+              color: highlightColor.withOpacity(0.8),
+              width: 1,
             ),
-          );
-        }),
+          ),
+        ),
       ),
     );
   }

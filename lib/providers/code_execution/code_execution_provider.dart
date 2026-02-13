@@ -3,19 +3,32 @@ import 'package:code_pulse/providers/selected_language/selected_language_provide
 import 'package:flutter_code_editor/flutter_code_editor.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../model/visualizer_state.dart';
+import '../../logic/simple_interpreter.dart';
 
 part 'code_execution_provider.g.dart';
 
 @riverpod
 class CodeExecution extends _$CodeExecution {
   Timer? _timer;
+  List<VisualizerState> _steps = [];
 
   @override
   VisualizerState build() => const VisualizerState();
 
   void start() {
-    state = VisualizerState(running: true, paused: false, currentStep: 0);
-    _startTimer();
+    final code = ref.read(codeControlProvider).text;
+    final language = ref.read(selectedLanguageProvider);
+
+    // Interpret the code
+    _steps = SimpleInterpreter().interpret(code, language);
+
+    if (_steps.isNotEmpty) {
+      state = _steps.first;
+      _startTimer();
+    } else {
+      // No steps generated (empty code?), just set running
+      state = const VisualizerState(running: true);
+    }
   }
 
   void pause() {
@@ -32,20 +45,27 @@ class CodeExecution extends _$CodeExecution {
 
   void stop() {
     state = const VisualizerState();
+    _steps.clear();
     _stopTimer();
   }
 
   void nextStep() {
-    int totalLines = ref.read(codeControlProvider.notifier).totalLines;
+    if (_steps.isEmpty) return;
 
-    if (state.currentStep < totalLines - 1) {
-      state = state.copyWith(currentStep: state.currentStep + 1);
+    int nextIndex = state.currentStep + 1;
+    if (nextIndex < _steps.length) {
+      state = _steps[nextIndex];
+    } else {
+      pause(); // End of execution
     }
   }
 
   void previousStep() {
-    if (state.currentStep > 0) {
-      state = state.copyWith(currentStep: state.currentStep - 1);
+    if (_steps.isEmpty) return;
+
+    int prevIndex = state.currentStep - 1;
+    if (prevIndex >= 0) {
+      state = _steps[prevIndex];
     }
   }
 
