@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:code_pulse/providers/code_execution/code_execution_provider.dart';
 import 'package:code_pulse/providers/top_bar/top_bar_provider.dart';
 import 'package:flutter/material.dart';
@@ -34,15 +35,16 @@ class _EditorAreaState extends ConsumerState<EditorArea> {
   Widget build(BuildContext context) {
     final controller = ref.watch(codeControlProvider);
     final execState = ref.watch(codeExecutionProvider);
+    final topBarState = ref.watch(topBarStateProvider);
 
-    final currentLine = execState.currentStep.clamp(
+    final currentLine = (execState.currentLine ?? 0).clamp(
       0,
       ref.read(codeControlProvider.notifier).totalLines - 1,
     );
     final textStyle = const TextStyle(
       fontFamily: 'monospace',
       fontSize: 14,
-      height: 1.2, // regola l’interlinea esatta
+      height: 1.2,
     );
 
     // Calcolo altezza riga reale
@@ -65,39 +67,91 @@ class _EditorAreaState extends ConsumerState<EditorArea> {
       );
     });
 
+    // Glassmorphism Card
     return ClipRRect(
-      borderRadius: BorderRadius.circular(12),
-      child: Stack(
-        children: [
-          // Scrollable contenitore per CodeField
-          SingleChildScrollView(
-            controller: _scrollController,
-            child: CodeTheme(
-              data: CodeThemeData(styles: vs2015Theme),
-              child: CodeField(
-                controller: controller,
-                expands: false,
-                textStyle: textStyle,
-                padding: EdgeInsets.zero,
+      borderRadius: BorderRadius.circular(16),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+        child: Container(
+          decoration: BoxDecoration(
+            color: const Color(0xff1d1f21).withOpacity(0.8),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Colors.white.withOpacity(0.1)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.2),
+                blurRadius: 10,
+                spreadRadius: 2,
               ),
-            ),
+            ],
           ),
-
-          if (ref.watch(topBarStateProvider).playerState != PlayerState.stopped)
-            // Overlay highlight riga corrente
-            Positioned.fill(
-              child: LineHighlightOverlay(
-                currentLine: currentLine,
-                textStyle: textStyle,
-                horizontalPadding: 12,
-                verticalOffset: tp.height * 0.9,
-                highlightColor: Theme.of(
-                  context,
-                ).colorScheme.primary.withOpacity(0.14),
-                totalLines: ref.read(codeControlProvider.notifier).totalLines,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Editor Header
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  color: const Color(0xff252526).withOpacity(0.5),
+                  border: Border(
+                    bottom: BorderSide(color: Colors.white.withOpacity(0.05)),
+                  ),
+                ),
+                child: const Row(
+                  children: [
+                    Icon(Icons.code, color: Colors.blueAccent, size: 18),
+                    SizedBox(width: 8),
+                    Text(
+                      'main.dart',
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-        ],
+
+              // Editor Body
+              Expanded(
+                child: SingleChildScrollView(
+                  controller: _scrollController,
+                  child: Stack(
+                    children: [
+                      CodeTheme(
+                        data: CodeThemeData(styles: vs2015Theme),
+                        child: CodeField(
+                          controller: controller,
+                          expands: false,
+                          textStyle: textStyle,
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(color: Colors.transparent),
+                        ),
+                      ),
+                      if (topBarState.playerState != PlayerState.stopped)
+                        LineHighlightOverlay(
+                          currentLine: currentLine,
+                          textStyle: textStyle,
+                          horizontalPadding: 0,
+                          verticalOffset: 12.0,
+                          highlightColor: Theme.of(
+                            context,
+                          ).colorScheme.primary.withOpacity(0.4),
+                          totalLines: ref
+                              .read(codeControlProvider.notifier)
+                              .totalLines,
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

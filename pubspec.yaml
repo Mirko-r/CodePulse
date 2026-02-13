@@ -1,5 +1,5 @@
 name: code_pulse
-description: "Real-time algorithm visualizer that interprets code as text and animates data structures instantly"
+description: "Real-time Dart algorithm visualizer that interprets code as text and animates data structures instantly"
 publish_to: 'none' 
 
 version: 1.0.0+1
