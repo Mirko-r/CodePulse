@@ -423,35 +423,62 @@ class SimpleInterpreter {
 
   int _parseMathExpression(String exp, Map<String, dynamic> vars) {
     exp = exp.trim();
-    // Improved tokenization to handle spaces between operators
-    List<String> terms = exp.split(
-      RegExp(r'\s+(?=[+\-%])|(?<=[+\-%])\s+|(?=[+\-%])|(?<=[+\-%])'),
-    );
+    if (exp.isEmpty) return 0;
+
+    // Robust tokenization: find operators while keeping them as tokens
+    final tokens = <String>[];
+    // Match multi-character operators first (~/) then single characters
+    final regex = RegExp(r'(~/|[\+\-\*\/\%])');
+    int lastStart = 0;
+
+    for (final match in regex.allMatches(exp)) {
+      final before = exp.substring(lastStart, match.start).trim();
+      if (before.isNotEmpty) tokens.add(before);
+      tokens.add(match.group(0)!);
+      lastStart = match.end;
+    }
+    final remaining = exp.substring(lastStart).trim();
+    if (remaining.isNotEmpty) tokens.add(remaining);
+
+    if (tokens.isEmpty) return 0;
+    if (tokens.length == 1) return _parseInt(tokens[0], vars);
+
+    // Simple left-to-right evaluation for now (sufficient for most algorithms)
+    // We can add precedence if needed later
     int result = 0;
     String currentOp = '+';
 
-    // First pass: handle multiplication/division/modulo (simplified to just modulo for now per request)
-    // Actually, simple sequential evaluation is safer for this limited interpreter
-    // But we need to handle "n % 2" correctly.
+    for (int i = 0; i < tokens.length; i++) {
+      String token = tokens[i].trim();
+      if (token.isEmpty) continue;
 
-    // If expression is just one term, parse it
-    if (terms.length == 1) return _parseInt(terms[0], vars);
-
-    // Simple left-to-right evaluation
-    for (int i = 0; i < terms.length; i++) {
-      String term = terms[i].trim();
-      if (term.isEmpty) continue;
-
-      if (term == '+' || term == '-' || term == '%') {
-        currentOp = term;
+      if (RegExp(r'^(~/|[\+\-\*\/\%])$').hasMatch(token)) {
+        currentOp = token;
       } else {
-        int val = _parseInt(term, vars);
+        int val = _parseInt(token, vars);
         if (i == 0) {
           result = val;
         } else {
-          if (currentOp == '+') result += val;
-          if (currentOp == '-') result -= val;
-          if (currentOp == '%') result %= val;
+          switch (currentOp) {
+            case '+':
+              result += val;
+              break;
+            case '-':
+              result -= val;
+              break;
+            case '*':
+              result *= val;
+              break;
+            case '/':
+              result = (result / val).toInt();
+              break;
+            case '~/':
+              result ~/= val;
+              break;
+            case '%':
+              result %= val;
+              break;
+          }
         }
       }
     }
